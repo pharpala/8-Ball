@@ -1,0 +1,66 @@
+<html>
+  <head>
+    <title>Shoot!</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #9b3bb3;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 400px;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      h3 {
+        margin-top: 0;
+        font-size: 20px;
+        color: #333;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        color: #666;
+      }
+      input[type="text"] {
+        width: calc(100% - 10px);
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+      }
+      input[type="submit"] {
+        width: 100%;
+        padding: 10px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      input[type="submit"]:hover {
+        background-color: #45a049;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <form action="display.html" method="post">
+        <h3>Lets play!</h3>
+        <label for="game_name">Game Name:</label>
+        <input type="text" id="game_name" name="game_name" />
+        <label for="player1_name">Player 1 Name:</label>
+        <input type="text" id="player1_name" name="player1_name" />
+        <label for="player2_name">Player 2 Name:</label>
+        <input type="text" id="player2_name" name="player2_name" />
+        <input type="submit" value="Start Game" />
+      </form>
+    </div>
+  </body>
+</html>

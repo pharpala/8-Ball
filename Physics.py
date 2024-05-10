@@ -2,6 +2,8 @@ import phylib
 import sqlite3
 import os
 import math
+import random
+import time
 
 ################################################################################
 # import constants from phylib to global variables
@@ -16,6 +18,7 @@ DRAG =phylib.PHYLIB_DRAG
 MAX_TIME =phylib.PHYLIB_MAX_TIME
 MAX_OBJECTS =phylib.PHYLIB_MAX_OBJECTS
 FRAME_RATE = 0.01
+FRAME_INTERVAL = 0.01
 
 # add more here
 HEADER = """<?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -42,9 +45,9 @@ BALL_COLOURS = [
     "GREEN",
     "BROWN",
     "BLACK",
-    "LIGHTYELLOW",
-    "LIGHTBLUE",
-    "PINK",             # no LIGHTRED
+    "DARKKHAKI",
+    "BLUE",
+    "BURLYWOOD",         # no LIGHTRED
     "MEDIUMPURPLE",     # no LIGHTPURPLE
     "LIGHTSALMON",      # no LIGHTORANGE
     "LIGHTGREEN",
@@ -85,8 +88,26 @@ class StillBall( phylib.phylib_object ):
 
     # add an svg method here
     def svg (self):
-        return f'<circle cx="{self.obj.still_ball.pos.x}" cy="{self.obj.still_ball.pos.y}" r="{BALL_RADIUS}" fill="{BALL_COLOURS[self.obj.still_ball.number]}" />\n'
-
+        if (self.obj.still_ball.number != 0):
+            return """<circle cx="%d" cy="%d" r="%d" fill="%s" />\n""" % (
+                self.obj.still_ball.pos.x,
+                self.obj.still_ball.pos.y,
+                BALL_RADIUS,
+                BALL_COLOURS[self.obj.still_ball.number]
+            )
+        else:
+            return """<circle id="cueBall" cx="%d" cy="%d" r="%d" fill="%s" \n/>
+                      <line id="line" class = 'line' x1="%d" y1="%d" x2="%d" y2="%d" style="display: none;" />\n""" % (
+                self.obj.still_ball.pos.x,
+                self.obj.still_ball.pos.y,
+                BALL_RADIUS,
+                BALL_COLOURS[self.obj.still_ball.number],
+                self.obj.still_ball.pos.x,
+                self.obj.still_ball.pos.y,
+                self.obj.still_ball.pos.x,
+                self.obj.still_ball.pos.y,
+        )
+    
 
 class RollingBall( phylib.phylib_object ):
 
@@ -105,7 +126,26 @@ class RollingBall( phylib.phylib_object ):
 
     # add an svg method here
     def svg (self):
-        return f'<circle cx="{self.obj.rolling_ball.pos.x}" cy="{self.obj.rolling_ball.pos.y}" r="{BALL_RADIUS}" fill="{BALL_COLOURS[self.obj.rolling_ball.number]}" />\n'
+        if(self.obj.rolling_ball.number != 0):
+            return """<circle cx="%d" cy="%d" r="%d" fill="%s" />\n""" % (
+                self.obj.rolling_ball.pos.x,
+                self.obj.rolling_ball.pos.y,
+                BALL_RADIUS,
+                BALL_COLOURS[self.obj.rolling_ball.number]
+            )
+        else:
+            return """<circle id="cueBall" cx="%d" cy="%d" r="%d" fill="%s" />\n
+                <line id="line" class = 'line' x1="%d" y1="%d" x2="%d" y2="%d" style="display: none;" />\n""" % (
+                self.obj.rolling_ball.pos.x,
+                self.obj.rolling_ball.pos.y,
+                BALL_RADIUS,
+                BALL_COLOURS[self.obj.rolling_ball.number],
+                self.obj.rolling_ball.pos.x,
+                self.obj.rolling_ball.pos.y,
+                self.obj.rolling_ball.pos.x,
+                self.obj.rolling_ball.pos.y,
+            )
+    
 
 class Hole( phylib.phylib_object ):
 
@@ -122,10 +162,12 @@ class Hole( phylib.phylib_object ):
         self.__class__ = Hole
 
 
-    # add an svg method here
     def svg (self):
-        return f'<circle cx="{self.obj.hole.pos.x}" cy="{self.obj.hole.pos.y}" r="{BALL_RADIUS}" fill="black" />\n'
-
+        return """<circle cx="%d" cy="%d" r="%d" fill="black" />\n""" % (
+            self.obj.hole.pos.x,
+            self.obj.hole.pos.y,
+            HOLE_RADIUS
+        )
 
 
 class HCushion( phylib.phylib_object ):
@@ -160,7 +202,7 @@ class VCushion( phylib.phylib_object ):
 
         # this creates a generic phylib_object
         phylib.phylib_object.__init__( self, 
-                                       phylib.PHYLIB_HOLE, 
+                                       phylib.PHYLIB_VCUSHION, 
                                        0, 
                                        None, None, None, 
                                        x, 0.0 )
@@ -175,9 +217,9 @@ class VCushion( phylib.phylib_object ):
             x_val = -25
         else: 
             x_val = 1350
-        return f'<rect width="25" height="2750" x="{x_val}" y="-25" fill="darkgreen" />\n'
-    
-
+        return """<rect width="25" height="2750" x= "%d" y="-25" fill="darkgreen" />\n""" % (
+            x_val
+        )
 
 
 ################################################################################
@@ -314,6 +356,73 @@ class Table( phylib.phylib_table ):
                 cue_ball = obj
                 break
         return cue_ball
+    
+    def addBalls(self, table):
+        # helper method to add all initial balls to table
+        pos= Coordinate(675,2025) # cue ball
+        sb = StillBall( 0, pos)
+        table += sb
+
+        pos1= Coordinate(675,675) # 1 ball
+        sb1 = StillBall( 1, pos1)
+        table += sb1
+
+        pos2= Coordinate(615,630) # 2 ball
+        sb2 = StillBall( 2, pos2)
+        table += sb2
+
+        pos3= Coordinate(735,630) # 3 ball
+        sb3 = StillBall( 3, pos3)
+        table += sb3
+
+        pos4= Coordinate(555,585) # 4 ball
+        sb4 = StillBall( 4, pos4)
+        table += sb4
+
+        pos5= Coordinate(675,585) # 5 ball
+        sb5 = StillBall( 5, pos5)
+        table += sb5
+
+        pos6= Coordinate(795,585) # 6 ball
+        sb6 = StillBall( 6, pos6)
+        table += sb6
+
+        pos7= Coordinate(495,540) # 7 ball
+        sb7 = StillBall( 7, pos7)
+        table += sb7
+
+        pos8= Coordinate(615,540) # 8 ball
+        sb8 = StillBall( 8, pos8)
+        table += sb8
+
+        pos9= Coordinate(735,540) # 9 ball
+        sb9 = StillBall( 9, pos9)
+        table += sb9
+
+        pos10= Coordinate(855,540) # 10 ball
+        sb10 = StillBall( 10, pos10)
+        table += sb10
+
+        pos11= Coordinate(435,495) # 11 ball
+        sb11 = StillBall( 11, pos11)
+        table += sb11
+
+        pos12= Coordinate(555,495) # 12 ball
+        sb12 = StillBall( 12, pos12)    
+        table += sb12
+
+        pos13= Coordinate(675,495) # 13 ball
+        sb13 = StillBall( 13, pos13)
+        table += sb13
+
+        pos14= Coordinate(795,495) # 14 ball
+        sb14 = StillBall( 14, pos14)
+        table += sb14
+
+        pos15= Coordinate(915,495) # 15 ball
+        sb15 = StillBall( 15, pos15)
+        table += sb15
+
 
 
 
@@ -327,6 +436,7 @@ class Database ():
             
         self.conn = sqlite3.connect('phylib.db')
         self.cursor = self.conn.cursor()
+
     
     # Method closes cursor and commits, does not close connection
     def closeCurr (self):
@@ -406,7 +516,10 @@ class Database ():
                 ball = StillBall(ball_no, position)
             else:
                 velocity = Coordinate(xvel, yvel)
-                ball = RollingBall(ball_no, position, velocity, velocity)  # Assuming acceleration is same as velocity
+                accX = -xvel * DRAG
+                accY = -yvel * DRAG
+                acceleration = Coordinate(accX, accY)
+                ball = RollingBall(ball_no, position, velocity, acceleration)  # Assuming acceleration is same as velocity
 
             table += ball
 
@@ -459,12 +572,27 @@ class Database ():
     def getGame (self, gameID):
         # to account for sql start from 1 
         gameID = gameID + 1 
-        game_data = Database().execute("""SELECT GameID, GameName, PlayerID, PlayerName 
+        game_data = Database().execute("""SELECT GAMEID, GAMENAME, PLAYERID, PLAYERNAME 
                                           FROM Game, Player  
-                                          JOIN Player ON Game.GameID = Player.GameID
-                                          WHERE Game.GameID = ?''', (GameID)""", (gameID)).fetchone()
+                                          JOIN Player ON Game.GAMEID = Player.GAMEID
+                                          WHERE Game.GAMEID = ?''', (GameID)""", (gameID)).fetchone()
         
         return game_data
+
+    def setGame (self, gameName, player1Name, player2Name):
+        self.cursor = self.conn.cursor()
+
+        self.cursor.execute('''INSERT INTO Game (GAMENAME) VALUES (?)''', (gameName,))
+        game_id = self.cursor.lastrowid
+
+        self.cursor.execute('''INSERT INTO Player (PLAYERNAME, GAMEID) VALUES (?, ?)''', (player1Name, game_id))
+        player1_id = self.cursor.lastrowid
+
+        # Insert player2Name into Player table
+        self.cursor.execute('''INSERT INTO Player (PLAYERNAME, GAMEID) VALUES (?, ?)''', (player2Name, game_id))
+        player2_id = self.cursor.lastrowid
+
+        return game_id
     
     def newShot(self, gameID, playerID):
         """
@@ -476,50 +604,130 @@ class Database ():
         shotID = self.cursor.lastrowid
         self.conn.commit()
         return shotID
+    
+    def insert_table_shot (self, tableID, shotID):
+        self.cursor = self.conn.cursor()
+        self.cursor.execute('''INSERT INTO TableShot (TABLEID, SHOTID) VALUES (?, ?)''', (tableID, shotID))
+        shotID = self.cursor.lastrowid
+        self.conn.commit()
 
 
 class Game ():
 
-    def __init__ (self, gameID=None, gameName = None, player1Name = None, player2Name = None) :
+    def __init__(self, gameID=None, gameName=None, player1Name=None, player2Name=None, table=None):
         self.db = Database()
-        if gameID is not None and (gameName is not None or player1Name is not None or player2Name is not None):
-            raise TypeError("Invalid constructor arguments")
-        elif gameID is None and (gameName is None or player1Name is None or player2Name is None):
-            raise TypeError("Invalid constructor arguments")
-
-        # Initialize member variables
-        self.gameID = None
-        self.gameName = None
-        self.player1Name = None
-        self.player2Name = None
-
-        # If gameID is provided, retrieve game details from the database
-        if gameID is not None:
-            game_data = self.db.getGame(gameID)
-            print(f"Game data is {game_data}")
-            if game_data:
-                self.gameID = game_data[0] 
-                self.gameName = game_data[1]
-                # Retrieve player names from the Player table based on GAMEID
-                player_data = self.db.cursor.execute("SELECT PLAYERNAME FROM Player WHERE GAMEID = ?", (gameID,)).fetchall()
-                if len(player_data) >= 2:
-                    self.player1Name = player_data[0][0]
-                    self.player2Name = player_data[1][0]
-
-        # If gameID is None, create a new game and add it to the database
-        else:
-            cursor = self.db.cursor
-            cursor.execute("INSERT INTO Game (GAMENAME) VALUES (?)", (gameName,))
-            self.gameID = cursor.lastrowid
-
-            cursor.execute("INSERT INTO Player (PLAYERNAME, GAMEID) VALUES (?, ?)", (player1Name, self.gameID))
-            cursor.execute("INSERT INTO Player (PLAYERNAME, GAMEID) VALUES (?, ?)", (player2Name, self.gameID))
-
-            # Assign player names directly from the provided arguments
+        self.db.createDB()
+        if gameID is not None and gameName is None and player1Name is None and player2Name is None:
+            # Constructor version (i)
+            self.gameID = gameID + 1  # Adjust gameID as per the requirement
+            self.gameName, self.player1Name, self.player2Name = self.db.getGame(gameID)
+        elif gameID is None and gameName is not None and player1Name is not None and player2Name is not None:
+            # Constructor version (ii)
+            self.gameName = gameName
             self.player1Name = player1Name
-            self.player2Name = player2Name           
+            self.player2Name = player2Name
+            self.gameID = self.db.setGame(gameName, player1Name, player2Name)
+
 
     def shoot(self, gameName, playerName, table, xvel, yvel):
+        
+        print("Lets print shoot")
+        game_end = False
+        # Calling the getPlayerID from Database
+        cursor = self.db.cursor
+        player_data = cursor.execute("SELECT PLAYERID FROM Player WHERE PLAYERNAME=?", (playerName,)).fetchone()
+        if player_data is None:
+            raise ValueError("Player not found")
+
+        playerID = player_data[0]
+
+        # Calling the newshot function From Database
+        shotID = self.db.newShot(self.gameID, playerID)
+        shotID = shotID - 1
+ 
+        for obj in table:
+            if isinstance(obj, StillBall) and obj.obj.still_ball.number == 0:
+                obj.type = phylib.PHYLIB_ROLLING_BALL  
+                xpos = obj.obj.still_ball.pos.x
+                ypos = obj.obj.still_ball.pos.y
+                obj.obj.rolling_ball.pos.x = xpos
+                obj.obj.rolling_ball.pos.y = ypos
+                vel = Coordinate(xvel, yvel)
+                speed = math.sqrt(xvel**2 + yvel**2)
+                acc_x, acc_y = (-xvel / speed * DRAG, -yvel / speed * DRAG)
+                acc = Coordinate(acc_x, acc_y)
+                obj.obj.rolling_ball.vel.x = xvel
+                obj.obj.rolling_ball.vel.y = yvel
+                obj.obj.rolling_ball.acc.x = acc.x
+                obj.obj.rolling_ball.acc.y = acc.y
+                obj.obj.rolling_ball.number = 0
+        
+        lows, highs = [], []
+        present_balls = set()        
+        
+        svg_list = ""
+
+        while table:
+            current_table = table
+            start_time = table.time
+            table = table.segment()
+            if not table:
+                break  
+            segment_length = table.time - start_time
+            num_frames = int(segment_length / FRAME_INTERVAL)
+
+            for frame_index in range(num_frames):
+                frame_time = frame_index * FRAME_INTERVAL
+                updated_table = current_table.roll(frame_time)
+                updated_table.time = start_time + frame_time
+
+                # table_id = self.db.writeTable(updated_table)
+                # #calling the recordTable function from Database
+                # self.db.recordTableShot(table_id, shotID)
+                # svg_list.append(updated_table.svg())
+        print("exited shot")
+        # Initialize a variable to track whether the cue ball (number 0) is found
+        found = 0 
+        for obj in current_table:
+            if isinstance(obj, StillBall):
+                present_balls.add(obj.obj.still_ball.number)  # Direct attribute access
+            elif isinstance(obj, RollingBall):
+            # Adjust this line according to how RollingBall stores/accesses the ball number
+            # For example, if the number is accessed via a method:
+                present_balls.add(obj.obj.rolling_ball.number)
+            # Or if the number is nested within another attribute, adjust accordingly:
+            # present_balls.add(obj.ball_info.number)
+        print(present_balls)
+
+        for ball_number in range(1, 16):
+            if ball_number in present_balls:
+                if 1 <= ball_number <= 7:
+                    lows.append(ball_number)
+                elif 9 <= ball_number <= 15:
+                    highs.append(ball_number)
+
+        if 8 not in present_balls:
+            game_end=True
+        if present_balls == None:
+            game_end = True
+
+        print(highs)
+        print(lows)
+
+        
+        for obj in current_table:
+            if isinstance(obj, StillBall) and obj.obj.still_ball.number == 0:
+                found = 1;
+        
+        if found == 0:
+            current_table += StillBall(0, Coordinate(TABLE_WIDTH/2.0 + random.uniform(-3.0,3.0),
+                                TABLE_LENGTH-TABLE_WIDTH/2.0))
+        
+        svg_list= current_table.svg()
+       
+        return[current_table, svg_list, highs, lows, game_end]
+    
+        """
         # Get the playerID from the playerName
         cursor = self.db.cursor
         player_data = cursor.execute("SELECT PLAYERID FROM Player WHERE PLAYERNAME=?", (playerName,)).fetchone()
@@ -589,7 +797,7 @@ class Game ():
             for i in range(segment_length):
                 time_passed = i * FRAME_RATE
                 new_table = table.roll(time_passed)
-                new_table.time = start_time + time_passed
+                new_table.time = end_time + time_passed
                 new_table.id = self.db.writeTable(new_table)
 
                 shotID = self.db.newShot(self.gameID, playerID)  # Get the shot ID
@@ -597,3 +805,4 @@ class Game ():
         
             start_time = end_time
 
+        """
