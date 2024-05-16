@@ -90,7 +90,7 @@ To run this application, you will need the socslinux container. If you have it, 
 
 ## Usage
 
-1. Open your browser and go to `http://localhost:5000`.
+1. Open your browser and go to `http://localhost:5500`.
 2. Enter the game name and player names when prompted.
 3. Start the game and enjoy! You can drag the cue ball to play.
 
