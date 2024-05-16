@@ -10,6 +10,15 @@
 - [Screenshots](#screenshots)
 - [Contributing](#contributing)
 
+## Technologies used
+
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+![C](https://img.shields.io/badge/c-%2300599C.svg?style=for-the-badge&logo=c&logoColor=white)
+![Javascript](https://img.shields.io/badge/Javascript-F0DB4F?style=for-the-badge&labelColor=black&logo=javascript&+logoColor=F0DB4F)
+![HTML](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![CSS](https://img.shields.io/badge/CSS-239120?&style=for-the-badge&logo=css3&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)
+
 ## Introduction
 
 Welcome to the Pool Game Application! This is a full stack web application that simulates a pool game. The game features realistic physics, allowing players to enjoy a smooth and engaging experience.
@@ -31,45 +40,6 @@ Welcome to the Pool Game Application! This is a full stack web application that 
 - **JavaScript**: Frontend interactivity.
 - **HTML/CSS**: Frontend structure and styling.
 
-## Installation
-
-To run this application, follow these steps:
-
-1. **Clone the repository**:
-
-    ```bash
-    git clone <repository_url>
-    cd <repository_directory>
-    ```
-
-2. **Install dependencies**:
-
-    Ensure you have Python installed. Install the required Python packages:
-
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-3. **Compile the C code**:
-    Use the following command to compile the C code:
-
-    ```bash
-    gcc -c physics.c -o physics.o
-    gcc -shared -o libphysics.so physics.o
-    ```
-
-4. **Run the application**:
-
-    ```bash
-    python app.py
-    ```
-
-## Usage
-
-1. Open your browser and go to `http://localhost:5000`.
-2. Enter the game name and player names when prompted.
-3. Start the game and enjoy! You can drag the cue ball to play.
-
 ## Screenshots
 
 Here are some screenshots of the application:
@@ -85,6 +55,44 @@ Here are some screenshots of the application:
 ### Game Ending
 
 ![Game End](utils/game_end.png)
+
+## Installation
+
+To run this application, you will need the socslinux container. If you have it, run it and follow these steps:
+
+1. **Clone the repository**:
+
+    ```bash
+    git clone https://github.com/pharpala/8-Ball.git
+    cd 8-ball
+    cd src
+    ```
+
+2. **Compile the C code**:
+    Use the following command to compile the C code:
+
+    ```bash
+    make
+    ```
+
+3. **Attach Shared C library**:
+    Use the following command to attach the .so library to the program:
+
+    ```bash
+    export LD_LIBRARY_PATH=`pwd`
+    ```
+
+4. **Run the application**:
+
+    ```bash
+    python server.py 5500
+    ```
+
+## Usage
+
+1. Open your browser and go to `http://localhost:5000`.
+2. Enter the game name and player names when prompted.
+3. Start the game and enjoy! You can drag the cue ball to play.
 
 ## Contributing
 
